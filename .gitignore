@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Model checkpoints / weights
+*.pth
+*.pt
+*.onnx
+*.h5
+*.hdf5
+*.ckpt
+checkpoints/
+checkpoint/
+
+# Experiment results (large)
+experiments/results/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude/Codegraph
+.claude/
+.codegraph/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files (if any large datasets)
+*.tar
+*.tar.gz
+*.zip
+*.npz
+
+# Logs
+*.log
+logs/
+
+# Environment & secrets
+.env
+.env.local

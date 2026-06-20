@@ -1,0 +1,45 @@
+# Model weights
+checkpoints/*.pth
+checkpoints/*.pt
+checkpoints/*.bin
+checkpoints/*.safetensors
+
+# Dataset
+data/kvasir-seg/images/
+data/kvasir-seg/masks/
+data/kvasir-seg/processed/
+
+# Logs
+experiments/results/
+runs/
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wandb
+wandb/

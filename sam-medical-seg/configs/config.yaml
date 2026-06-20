@@ -1,0 +1,110 @@
+# =============================================================================
+# SAM-MedSeg Configuration
+# All hyperparameters are centralized here — no hardcoding in source files.
+# =============================================================================
+
+# --- Project Paths ---
+project:
+  name: "SAM-MedSeg"
+  root: "./"
+  data_dir: "./data/kvasir-seg"
+  checkpoint_dir: "./checkpoints"
+  log_dir: "./experiments/results"
+  seed: 42
+
+# --- Dataset ---
+data:
+  name: "kvasir-seg"
+  image_size: [1024, 1024]        # [H, W] — 512 for 8GB GPU, 1024 for >=12GB
+  num_classes: 1                  # binary segmentation (polyp=1, background=0)
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+  augmentation:
+    random_hflip_prob: 0.5
+    random_rotation_deg: 10
+    random_brightness: 0.2
+    random_contrast: 0.2
+    elastic_deformation: true
+
+# --- Few-shot Settings ---
+few_shot:
+  enabled: true
+  ratios: [0.01, 0.05, 0.10, 1.0]  # 1%, 5%, 10%, 100%
+  num_repeats: 3                     # repeat each ratio with different seeds
+
+# --- SAM Backbone ---
+sam:
+  model_type: "vit_b"               # vit_b / vit_l / vit_h / vit_tiny
+  checkpoint_url: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
+  checkpoint_path: "./checkpoints/sam_vit_b_01ec64.pth"
+  freeze_layers: 9                   # freeze first 9 transformer layers
+  image_encoder:
+    img_size: 1024
+    patch_size: 16
+    embed_dim: 768
+    depth: 12
+    num_heads: 12
+    out_chans: 256
+
+# --- LoRA ---
+lora:
+  enabled: true
+  r: 4                              # LoRA rank
+  lora_alpha: 16                    # scaling factor
+  target_modules: ["qkv", "proj"]
+  lora_dropout: 0.1
+  bias: "none"
+
+# --- Prompt Optimizer ---
+prompt:
+  strategy: "grid_sampling"         # grid_sampling / coarse_seg
+  grid_size: 32                     # N x N grid points
+  iou_threshold: 0.5                # filter points with IoU < threshold
+
+# --- Medical Decoder ---
+med_decoder:
+  enabled: true
+  base_channels: 64                 # channels after 1x1 projection
+  inter_channels: [768, 768, 768, 768]  # skip connection channels (layers 3,6,9,12)
+
+# --- Fusion ---
+fusion:
+  alpha: 0.5                        # initial fusion weight (learnable)
+  strategy: "weighted"              # weighted / learned / concat
+
+# --- Loss ---
+loss:
+  type: "combined"                  # combined / dice / bce / focal
+  dice_weight: 0.5
+  bce_weight: 0.5
+  smooth: 1.0e-6
+
+# --- Training ---
+training:
+  optimizer: "adamw"
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.999]
+  lr_scheduler: "cosine"
+  warmup_epochs: 5
+  batch_size: 2                     # batch_size=2 for 1024 training
+  epochs: 100
+  patience: 10                      # early stopping patience
+  grad_clip_norm: 1.0
+  mixed_precision: true             # AMP fp16
+  gradient_checkpointing: true       # essential for 1024×1024 on 8GB GPU
+  num_workers: 4
+  pin_memory: true
+
+# --- Evaluation ---
+eval:
+  metrics: ["dice", "iou", "precision", "recall", "hd95"]
+  threshold: 0.5                    # binarization threshold
+
+# --- Logging ---
+logging:
+  backend: "tensorboard"            # tensorboard / wandb
+  wandb_project: "sam-medical-seg"
+  log_interval: 10                  # log every N steps
+  save_top_k: 3                     # keep top-k checkpoints
