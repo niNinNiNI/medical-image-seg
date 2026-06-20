@@ -39,6 +39,9 @@ experiments/results/
 .DS_Store
 Thumbs.db
 
+# LibreOffice lock files
+.~lock.*#
+
 # Jupyter
 .ipynb_checkpoints/
 
